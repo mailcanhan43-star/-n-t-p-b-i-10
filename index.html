@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ôn tập Bài 10 — Tự làm &amp; tự chấm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --maroon: #7a1f2c;
+    --maroon-dark: #5c1720;
+    --cream: #faf6f0;
+    --card: #ffffff;
+    --ink: #241b18;
+    --muted: #786b64;
+    --line: #e8ddd2;
+    --ok: #1e8e5a;
+    --ok-bg: #e9f7ef;
+    --bad: #c0392b;
+    --bad-bg: #fdecea;
+    --gold: #b8863b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Be Vietnam Pro', 'Noto Sans SC', sans-serif;
+  }
+  body { padding-bottom: 80px; }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: 18px 16px 40px; }
+
+  /* ===== Sticky progress ===== */
+  .progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--maroon);
+    color: #fff;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+  .progress-bar .track {
+    flex: 1;
+    height: 7px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    width: 0%;
+    background: #f2c94c;
+    transition: width .25s ease;
+  }
+
+  /* ===== Header ===== */
+  .header-box {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 5px solid var(--maroon);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin: 18px 0 20px;
+    box-shadow: 0 6px 18px rgba(122,31,44,0.06);
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  .h-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--maroon-dark);
+    margin: 0 0 4px;
+    line-height: 1.25;
+  }
+  .h-sub { font-size: 14.5px; color: var(--muted); margin: 0 0 14px; }
+  .lesson-select {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px dashed var(--line);
+    padding-top: 12px;
+  }
+  .lesson-select label { font-size: 13.5px; color: var(--muted); font-weight: 600; }
+  .lesson-select select {
+    font-family: inherit;
+    font-size: 14.5px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--line);
+    background: var(--cream);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ===== Score summary ===== */
+  .score-card {
+    display: none;
+    background: linear-gradient(135deg, var(--maroon), var(--maroon-dark));
+    color: #fff;
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 20px;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 8px 22px rgba(122,31,44,0.25);
+  }
+  .score-card.show { display: flex; }
+  .score-ring {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800;
+    border: 3px solid #f2c94c;
+    flex-shrink: 0;
+  }
+  .score-text-title { font-size: 16px; font-weight: 700; margin: 0 0 2px; }
+  .score-text-sub { font-size: 13.5px; opacity: 0.9; margin: 0; }
+
+  /* ===== Question card ===== */
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .q-card.wrong { border-color: var(--bad); background: var(--bad-bg); }
+  .q-card.right { border-color: var(--ok); background: var(--ok-bg); }
+
+  .q-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    background: var(--maroon);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .q-text {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    display: flex;
+    align-items: flex-start;
+  }
+  .q-status {
+    margin-left: auto;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .q-status.right { background: var(--ok); color: #fff; }
+  .q-status.wrong { background: var(--bad); color: #fff; }
+
+  .opts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border: 1.5px solid var(--line);
+    border-radius: 9px;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 14.5px;
+    background: #fff;
+    transition: border-color .12s, background .12s;
+  }
+  .opt:hover { border-color: var(--gold); }
+  .opt input { accent-color: var(--maroon); width: 15px; height: 15px; flex-shrink: 0; }
+  .opt.selected { border-color: var(--maroon); background: #fbeeee; }
+  .opt.mark-right { border-color: var(--ok); background: var(--ok-bg); font-weight: 700; }
+  .opt.mark-wrong { border-color: var(--bad); background: var(--bad-bg); text-decoration: line-through; opacity: .75; }
+  .opt .letter { font-weight: 700; color: var(--maroon-dark); }
+
+  .tf-opts { display: flex; gap: 10px; }
+  .tf-opts .opt { flex: 1; justify-content: center; font-weight: 600; }
+
+  .hint-correct {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--ok);
+    font-weight: 600;
+  }
+  .explain-box {
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: #6b4a12;
+    background: #fff8ec;
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 8px 12px;
+    line-height: 1.5;
+  }
+  .explain-box b { color: var(--maroon-dark); }
+
+  /* matching */
+  .match-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14.5px;
+    flex-wrap: wrap;
+  }
+  .match-row .han { font-weight: 700; min-width: 70px; }
+  select.pickr {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+  }
+  select.pickr.mark-right { border-color: var(--ok); background: var(--ok-bg); }
+  select.pickr.mark-wrong { border-color: var(--bad); background: var(--bad-bg); }
+
+  /* translate — tự viết bản dịch, tự đối chiếu, không auto-chấm đúng/sai */
+  .translate-wrap { margin-top: 4px; }
+  .translate-input {
+    width: 100%;
+    min-height: 64px;
+    font-family: inherit;
+    font-size: 14.5px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: 1.5px solid var(--line);
+    resize: vertical;
+    background: #fff;
+  }
+  .translate-input:focus { border-color: var(--gold); outline: none; }
+  .translate-input:disabled { background: #f7f3ee; color: var(--ink); opacity: 1; }
+  .q-card.self-check { border-color: var(--gold); }
+
+  /* ===== listening: audio button + fill-in text input ===== */
+  .audio-row { margin: 2px 0 12px; }
+  .audio-btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--maroon-dark);
+    background: #fff8ec;
+    border: 1.5px solid var(--gold);
+    border-radius: 99px;
+    padding: 7px 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .12s, transform .1s;
+  }
+  .audio-btn:hover { background: #fbeeda; }
+  .audio-btn:active { transform: scale(0.96); }
+  .audio-note {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: #fff8ec;
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+  .fill-wrap { margin-top: 4px; }
+  .fill-input {
+    width: 100%;
+    max-width: 320px;
+    font-family: inherit;
+    font-size: 15px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+  }
+  .fill-input:focus { border-color: var(--gold); outline: none; }
+  .fill-input:disabled { background: #f7f3ee; color: var(--ink); opacity: 1; }
+
+  .passage-box {
+    background: #fff8ec;
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 10px 0 16px;
+    font-style: italic;
+    font-size: 16px;
+  }
+  .section-label {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--maroon-dark);
+    margin: 22px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--line);
+  }
+
+  /* ===== Submit bar ===== */
+  .submit-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 -6px 18px rgba(0,0,0,0.06);
+    z-index: 30;
+  }
+  .btn {
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 12px 26px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform .1s ease, opacity .15s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--maroon); color: #fff; }
+  .btn-primary:hover { background: var(--maroon-dark); }
+  .btn-ghost { background: transparent; color: var(--maroon); border: 1.5px solid var(--maroon); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  @media (max-width: 480px) {
+    .opts { grid-template-columns: 1fr; }
+    .h-title { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="celebrateCanvas" style="position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:9999;"></canvas>
+
+<div class="progress-bar">
+  <span id="progressLabel">0 / 30 câu đã trả lời</span>
+  <div class="track"><div class="fill" id="progressFill"></div></div>
+</div>
+
+<div class="wrap">
+
+  <div class="header-box">
+    <p class="eyebrow">Ôn tập &amp; tự chấm điểm</p>
+    <h1 class="h-title" id="lessonTitle">[Tên bài ôn tập]</h1>
+    <p class="h-sub" id="lessonMeta">Làm xong bấm "Nộp bài" để chấm điểm ngay</p>
+    <div class="lesson-select">
+      <label for="lessonPicker">Chọn bài ôn tập:</label>
+      <select id="lessonPicker"></select>
+    </div>
+  </div>
+
+  <div class="score-card" id="scoreCard">
+    <div class="score-ring" id="scoreRing">–</div>
+    <div>
+      <p class="score-text-title" id="scoreTitle">Kết quả</p>
+      <p class="score-text-sub" id="scoreSub">—</p>
+    </div>
+  </div>
+
+  <div id="quizContainer"></div>
+
+</div>
+
+<div class="submit-bar">
+  <button class="btn btn-ghost" id="resetBtn">Làm lại</button>
+  <button class="btn btn-primary" id="submitBtn">Nộp bài</button>
+</div>
+
+<script>
+/* ============ DỮ LIỆU BÀI HỌC — VÍ DỤ MẪU ============
+   Đây là ví dụ minh hoạ đủ các loại block, theo cấu trúc 3 phần mặc định
+   cho ôn tập ngôn ngữ (Phần 1 Từ vựng / Phần 2 Ngữ pháp-Dịch / Phần 3 Bài
+   đọc). Với môn không phải ngôn ngữ, có thể bỏ các block "section" và
+   trộn tự do các loại còn lại (xem SKILL.md mục 2–3). Khi tạo bài thật:
+   1. Xoá mảng "blocks" ví dụ bên dưới, viết câu hỏi thật vào.
+   2. Đổi id/title/meta cho đúng môn học/bài học.
+   3. Muốn có nhiều bài trong 1 trang (để chọn qua dropdown) — thêm object
+      lesson thứ 2, thứ 3... vào mảng LESSONS, học sinh sẽ tự chọn bài.
+   4. correct trong "mcq" là index 0-based (0=A,1=B,2=C,3=D).
+   5. "match": left/right là 2 cột, correct[i] = index trong "right" ứng
+      với left[i] (0-based).
+   6. "translate": text = câu/đoạn cần dịch, answer = bản dịch tham khảo.
+      Học sinh tự gõ bản dịch của mình vào textarea; khi "Nộp bài", đáp án
+      tham khảo hiện ra để tự đối chiếu — KHÔNG chấm đúng/sai, không tính
+      vào điểm số (vì một câu có thể dịch đúng theo nhiều cách viết khác
+      nhau). KHÔNG dùng loại "classify" (phân loại/chọn nhóm) nữa — loại
+      này đã bị bỏ khỏi skill.
+   7. "section": chỉ có "label" (ví dụ "Phần 1 — Ôn từ vựng"), không tính
+      điểm, dùng để ngăn cách các phần trong 1 bài ôn tập ngôn ngữ.
+   8. "passage" không tính điểm, chỉ hiển thị đoạn văn/ngữ liệu trước các
+      câu mcq/translate đọc hiểu theo sau nó.
+   9. "explain" (tuỳ chọn, mọi loại block trừ "passage"/"section") — câu
+      giải thích NGẮN GỌN vì sao đáp án đúng lại đúng / mẹo phân biệt với
+      các lựa chọn gây nhiễu (với "translate" là gợi ý/mẹo dịch). Với các
+      loại có đúng/sai, CHỈ hiện ra khi học sinh trả lời SAI (đúng thì ẩn,
+      tránh rườm rà); với "translate" luôn hiện cùng đáp án tham khảo. Nên
+      giải thích bằng lý do/quy tắc, không chỉ nhắc lại đáp án. Luôn viết
+      "explain" cho mỗi câu nếu có thể — đây là tính năng chính giúp học
+      sinh học được từ lỗi sai, đừng bỏ qua.
+*/
+const LESSONS = [
+  {
+    id: "bai10",
+    title: "Ôn tập Bài 10 — Đi mua sắm (cốc, hoa quả, quần áo)",
+    meta: "30 câu (27 câu tính điểm + 3 câu dịch tự đối chiếu) • 4 phần: Từ vựng – Ngữ pháp/Dịch – Bài đọc – Nghe kiểu HSK1 • Làm xong bấm \"Nộp bài\" để chấm điểm ngay",
+    blocks: [
+      /* ============ PHẦN 1 — ÔN TỪ VỰNG ============ */
+      { type: "section", label: "Phần 1 — Ôn từ vựng" },
+      { type: "mcq", num: 1, text: "“杯子” (bēizi) nghĩa là gì?",
+        options: ["cốc, chén","quần áo","tiền","hoa quả"], correct: 0,
+        explain: "“杯子” (bēizi) = cốc/chén, ví dụ “有杯子吗?” = có cốc không?" },
+      { type: "mcq", num: 2, text: "Từ nào có nghĩa là “người bán hàng”?",
+        options: ["老师 (lǎoshī)","售货员 (shòuhuòyuán)","朋友 (péngyou)","学生 (xuésheng)"], correct: 1,
+        explain: "“售货员” (shòuhuòyuán) = người bán hàng/nhân viên cửa hàng, là người trả lời khách trong các hội thoại mua sắm." },
+      { type: "mcq", num: 3, text: "“斤” (jīn) là lượng từ dùng để tính gì?",
+        options: ["quần áo","tiền","trọng lượng (khi mua hoa quả, ~500g)","cốc, chén"], correct: 2,
+        explain: "“斤” (jīn) là đơn vị cân nặng dùng khi mua hoa quả/thực phẩm, 1 斤 ≈ 500g, ví dụ “两斤苹果” = hai cân táo." },
+      { type: "mcq", num: 4, text: "Từ nào trái nghĩa với “贵” (guì – đắt)?",
+        options: ["多 (nhiều)","少 (ít)","好看 (đẹp)","便宜 (piányi – rẻ)"], correct: 3,
+        explain: "“贵” (đắt) trái nghĩa với “便宜” (piányi – rẻ), như trong câu “也不贵” (cũng không đắt)." },
+      { type: "match", num: 5, text: "Ghép từ tiếng Trung với nghĩa tiếng Việt đúng",
+        left: ["杯子 (bēizi)","衣服 (yīfu)","水果 (shuǐguǒ)","商店 (shāngdiàn)","苹果 (píngguǒ)"],
+        right: ["cửa hàng, tiệm","táo","cốc, chén","quần áo","hoa quả"],
+        correct: [2,3,4,0,1],
+        explain: "杯子=cốc/chén, 衣服=quần áo, 水果=hoa quả (nghĩa chung), 商店=cửa hàng, 苹果=táo (một loại hoa quả cụ thể) — dễ nhầm 水果 và 苹果 vì một từ chỉ loại chung, một từ chỉ tên quả cụ thể." },
+      { type: "mcq", num: 6, text: "Điền từ còn thiếu: “请问,____ 杯子吗?” (Xin hỏi, cửa hàng có cốc không?)",
+        options: ["有 (yǒu)","是 (shì)","在 (zài)","能 (néng)"], correct: 0,
+        explain: "Cấu trúc hỏi “có... không?” dùng “有...吗?”, không dùng “是” (là) hay “在” (ở) trong trường hợp này." },
+      { type: "mcq", num: 7, text: "Điền từ còn thiếu: “苹果三块五一____。” (Táo giá 3.5 tệ một...)",
+        options: ["个 (cái)","斤 (cân)","件 (chiếc – quần áo)","块 (đơn vị tiền)"], correct: 1,
+        explain: "Hoa quả được tính theo “斤” (cân, ~500g), không dùng “个”/“件” cho hoa quả bán theo cân." },
+      { type: "mcq", num: 8, text: "Điền từ còn thiếu: “这件衣服很好看,也不____。” (Chiếc áo này đẹp, cũng không...)",
+        options: ["便宜 (rẻ)","少 (ít)","贵 (đắt)","多 (nhiều)"], correct: 2,
+        explain: "“也不贵” = cũng không đắt — khen một món đồ vừa đẹp vừa không đắt, giống câu “好看,也不贵” trong bài." },
+
+      /* ============ PHẦN 2 — NGỮ PHÁP / DỊCH NGHĨA ============ */
+      { type: "section", label: "Phần 2 — Ngữ pháp & Dịch nghĩa" },
+      { type: "mcq", num: 9, text: "Câu nào dùng để hỏi giá tiền một cái/một chiếc?",
+        options: ["你叫什么名字?","你是哪国人?","现在几点?","多少钱一个?"], correct: 3,
+        explain: "“多少钱一个?” = bao nhiêu tiền một cái? — cấu trúc hỏi giá đơn vị, có thể đổi “个” thành “斤/件” tuỳ món hàng." },
+      { type: "mcq", num: 10, text: "Từ nào dùng để hỏi ý kiến, đánh giá (kiểu “...thế nào?”)?",
+        options: ["怎么样 (zěnmeyàng)","什么 (shénme)","哪儿 (nǎr)","多少 (duōshao)"], correct: 0,
+        explain: "“怎么样?” dùng để hỏi ý kiến/nhận xét về tính chất, tình trạng của sự việc, ví dụ “这件一百元,怎么样?”." },
+      { type: "mcq", num: 11, text: "Câu nào dùng đúng lượng từ cho quần áo?",
+        options: ["一斤衣服","一件衣服","一杯衣服","一块衣服"], correct: 1,
+        explain: "Quần áo dùng lượng từ “件” (jiàn), ví dụ “买一件吧” = mua một chiếc đi." },
+      { type: "tf", num: 12, text: "Nhận định: “那些 (nàxiē) dùng để chỉ vật ở gần người nói, còn 这些 (zhèxiē) dùng để chỉ vật ở xa.” Đúng hay sai?",
+        correct: false,
+        explain: "Ngược lại mới đúng: “这些” (these) chỉ những vật ở gần người nói, còn “那些” (those) chỉ những vật ở xa, như “这些五块钱一个,那些十块钱一个”." },
+      { type: "translate", num: 13, text: "Dịch câu sau sang tiếng Việt: “这些五块钱一个,那些十块钱一个。”",
+        answer: "Loại này (những cái này) giá năm tệ một cái, loại kia (những cái kia) giá mười tệ một cái.",
+        explain: "“这些...那些...” dùng để so sánh hai nhóm đồ vật gần/xa; “...钱一个” = giá... tệ một cái." },
+      { type: "translate", num: 14, text: "Dịch câu sau sang tiếng Trung: “Cửa hàng này có rất nhiều quần áo, chiếc áo này giá một trăm tệ.”",
+        answer: "这家商店衣服很多,这件一百元。",
+        explain: "“家” là lượng từ cho cửa hàng; “件” là lượng từ cho quần áo (có thể lược bỏ danh từ, chỉ nói “这件” = chiếc này); “元” là đơn vị tiền trang trọng, tương đương “块”." },
+
+      /* ============ PHẦN 3 — BÀI ĐỌC ============ */
+      { type: "section", label: "Phần 3 — Bài đọc (Bài khoá)" },
+      { type: "passage", text: `星期六,王一雪和刘明去商店买衣服。商店的衣服很多,也不贵。王一雪看见一件衣服,只要一百元,很好看。她说:"小雪能穿,买一件吧。"刘明问:"小明能穿吗?"王一雪说:"不能,这是女孩子穿的衣服,男孩子的衣服在那儿。"` },
+      { type: "mcq", num: 15, text: "王一雪和刘明星期六去哪儿?",
+        options: ["饭店","学校","商店","家"], correct: 2,
+        explain: "Câu đầu bài đọc: “王一雪和刘明去商店买衣服” — họ đi đến “商店” (cửa hàng)." },
+      { type: "mcq", num: 16, text: "商店的衣服贵不贵?",
+        options: ["很贵","没有衣服","不知道","不贵"], correct: 3,
+        explain: "Bài đọc nói “商店的衣服很多,也不贵” — quần áo nhiều và không đắt." },
+      { type: "mcq", num: 17, text: "王一雪看见的那件衣服多少钱?",
+        options: ["一百元","十元","五十元","一千元"], correct: 0,
+        explain: "Bài đọc nói chiếc áo đó “只要一百元” = chỉ giá một trăm tệ." },
+      { type: "tf", num: 18, text: "Nhận định: “Tiểu Minh (小明) có thể mặc chiếc áo mà 王一雪 nhìn thấy.” Đúng hay sai?",
+        correct: false,
+        explain: "王一雪 nói “不能” (không thể) vì “这是女孩子穿的衣服” — đây là quần áo con gái, còn quần áo con trai ở chỗ khác." },
+      { type: "mcq", num: 19, text: "男孩子的衣服在哪儿?",
+        options: ["这边","那儿","家里","商店里"], correct: 1,
+        explain: "Bài đọc kết thúc bằng câu “男孩子的衣服在那儿” = quần áo con trai ở đằng kia." },
+      { type: "translate", num: 20, text: "Dịch câu sau trong bài đọc sang tiếng Việt: “这是女孩子穿的衣服,男孩子的衣服在那儿。”",
+        answer: "Đây là quần áo (dành cho) con gái mặc, quần áo con trai ở đằng kia.",
+        explain: "“...穿的衣服” = quần áo (để) mặc; “那儿” = ở đó, đằng kia." },
+
+      /* ============ PHẦN 4 — BÀI NGHE (kiểu HSK1) ============ */
+      { type: "section", label: "Phần 4 — Bài nghe (kiểu HSK1) — bấm 🔊 Nghe để nghe câu, có thể nghe lại nhiều lần" },
+
+      { type: "section", label: "Dạng 1 — Nghe và chọn đáp án đúng (A/B/C)" },
+      { type: "mcq", num: 21, audio: "顾客问:请问,有杯子吗?售货员说:有,杯子在这边,水果和衣服在那边。",
+        text: "Nghe đoạn hội thoại và cho biết: khách hàng đang hỏi cửa hàng có gì?",
+        options: ["杯子","水果","衣服"], correct: 0,
+        explain: "Khách hỏi “请问,有杯子吗?” (có 杯子 không?), người bán chỉ nói thêm 水果 và 衣服 ở chỗ khác — hai từ này chỉ là vị trí đồ khác, không phải điều khách đang hỏi." },
+      { type: "mcq", num: 22, audio: "顾客说:我想买两斤苹果。售货员说:苹果三块五一斤,这些七块二,七块钱吧。",
+        text: "Nghe đoạn hội thoại và cho biết: táo có giá bao nhiêu tiền một cân (斤)?",
+        options: ["7 元","3.5 元","7.2 元"], correct: 1,
+        explain: "“苹果三块五一斤” = táo giá 3.5 tệ MỘT CÂN; còn “七块二/七块” là tổng tiền của HAI cân táo (làm tròn), không phải giá một cân — dễ nhầm nếu nghe không kỹ." },
+      { type: "mcq", num: 23, audio: "顾客说:这件一百元,怎么样?售货员说:好看,也不贵,那件二百元。",
+        text: "Nghe đoạn hội thoại và cho biết: chiếc áo được nhắc đến ĐẦU TIÊN (这件) có giá bao nhiêu?",
+        options: ["10 元","200 元","100 元"], correct: 2,
+        explain: "Khách nói “这件一百元” (chiếc NÀY 100 tệ), còn “那件二百元” (chiếc KIA 200 tệ) là chiếc khác được nhắc sau — câu hỏi hỏi về chiếc đầu tiên (这件) nên đáp án đúng là 100 元." },
+      { type: "mcq", num: 24, audio: "王一雪说:小雪能穿,买一件吧。刘明问:小明能穿吗?王一雪说:不能,这些是女孩子穿的衣服,男孩子的衣服在那儿。",
+        text: "Nghe đoạn hội thoại và cho biết: những chiếc áo được nhắc đến ĐẦU TIÊN (这些) là quần áo dành cho ai?",
+        options: ["女孩子","男孩子","男孩子和女孩子"], correct: 0,
+        explain: "Đoạn nghe nhắc tới cả hai: 小雪 (nữ) mặc được còn 小明 (nam) không mặc được vì “这些是女孩子穿的衣服” — quần áo đang nói tới (这些) là của 女孩子, còn quần áo của 男孩子 ở chỗ khác (那儿)." },
+
+      { type: "section", label: "Dạng 2 — Nghe và điền từ còn thiếu" },
+      { type: "fill", num: 25, audio: "杯子在这边。",
+        text: "Nghe câu sau và điền từ còn thiếu: “杯子在 ______ 。”",
+        accepted: ["这边", "zhebian"],
+        explain: "Câu nghe được là “杯子在这边” — từ còn thiếu là “这边” (zhèbiān = ở đây, bên này)." },
+      { type: "fill", num: 26, audio: "这儿的水果真便宜!",
+        text: "Nghe câu sau và điền từ còn thiếu: “这儿的水果真 ______ !”",
+        accepted: ["便宜", "pianyi"],
+        explain: "Câu nghe được là “这儿的水果真便宜!” — từ còn thiếu là “便宜” (piányi = rẻ)." },
+      { type: "fill", num: 27, audio: "我想买一件衣服。",
+        text: "Nghe câu sau và điền lượng từ còn thiếu: “我想买一 ______ 衣服。”",
+        accepted: ["件", "jian"],
+        explain: "“件” (jiàn) là lượng từ dùng cho quần áo — câu nghe được là “我想买一件衣服”." },
+
+      { type: "section", label: "Dạng 3 — Nghe và chọn Đúng/Sai (theo nhận định tiếng Việt)" },
+      { type: "tf", num: 28, audio: "这些五块钱一个,那些十块钱一个。",
+        text: "Nghe câu tiếng Trung, sau đó cho biết nhận định sau Đúng hay Sai: “Loại này (this) giá 5 tệ một cái, loại kia (that) giá 10 tệ một cái.”",
+        correct: true,
+        explain: "Câu nghe được “这些五块钱一个,那些十块钱一个” khớp đúng với nhận định: 这些 = 5 tệ/cái, 那些 = 10 tệ/cái." },
+      { type: "tf", num: 29, audio: "苹果三块五一斤。",
+        text: "Nghe câu tiếng Trung, sau đó cho biết nhận định sau Đúng hay Sai: “Táo có giá 5 tệ một cân.”",
+        correct: false,
+        explain: "Câu nghe được là táo giá “三块五” (3.5 tệ) một cân, không phải 5 tệ, nên nhận định này Sai." },
+      { type: "tf", num: 30, audio: "小雪能穿这件衣服。",
+        text: "Nghe câu tiếng Trung, sau đó cho biết nhận định sau Đúng hay Sai: “Tiểu Tuyết (小雪) có thể mặc chiếc áo này.”",
+        correct: true,
+        explain: "Câu nghe được “小雪能穿这件衣服” (Tiểu Tuyết có thể mặc chiếc áo này) khớp đúng với nhận định." }
+    ]
+  }
+];
+
+const LETTERS = ["A","B","C","D"];
+let currentLesson = LESSONS[0];
+let answers = {};       // key -> giá trị đã chọn
+let submitted = false;
+
+/* ============ NGHE: phát âm bằng giọng đọc có sẵn của trình duyệt ============
+   Không có file ghi âm thật — dùng Web Speech API (speechSynthesis) để đọc
+   câu tiếng Trung trong trường "audio" của mỗi block. Không cần mạng/thư
+   viện ngoài, nhưng cần trình duyệt hỗ trợ giọng đọc tiếng Trung (zh-CN) —
+   khuyến khích Chrome/Edge trên máy tính hoặc điện thoại. Học sinh có thể
+   bấm nghe lại nhiều lần (khác với đề thi thật chỉ nghe 1-2 lần). */
+function speakZH(text) {
+  if (!("speechSynthesis" in window)) {
+    alert("Trình duyệt này không hỗ trợ phát âm tự động. Hãy thử Chrome hoặc Edge.");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "zh-CN";
+  utter.rate = 0.82;
+  utter.pitch = 1;
+  window.speechSynthesis.speak(utter);
+}
+
+/* Chuẩn hoá đáp án gõ tay cho câu "fill": bỏ dấu thanh điệu (pinyin có dấu
+   vẫn khớp với pinyin không dấu), bỏ khoảng trắng, không phân biệt hoa/thường.
+   Chữ Hán không bị ảnh hưởng vì không có dấu tổ hợp Unicode. */
+function normalizeAnswer(s) {
+  return (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "").toLowerCase();
+}
+
+const el = (tag, cls, html) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+};
+
+function totalGradable(lesson) {
+  return lesson.blocks.filter(b => !["passage", "section", "translate"].includes(b.type)).length;
+}
+
+function keyFor(block) {
+  return (block.num !== undefined ? "q" + block.num : block.type + "_" + block.text.slice(0,6));
+}
+
+function render() {
+  const container = document.getElementById("quizContainer");
+  container.innerHTML = "";
+  document.getElementById("lessonTitle").textContent = currentLesson.title;
+  document.getElementById("lessonMeta").textContent = currentLesson.meta;
+
+  currentLesson.blocks.forEach(block => {
+    if (block.type === "section") {
+      container.appendChild(el("p", "section-label", block.label));
+      return;
+    }
+
+    if (block.type === "passage") {
+      container.appendChild(el("p", "section-label", "Đọc đoạn văn sau và trả lời các câu tiếp theo:"));
+      container.appendChild(el("div", "passage-box", block.text));
+      return;
+    }
+
+    const card = el("div", "q-card");
+    card.dataset.key = keyFor(block);
+
+    const qtext = el("div", "q-text");
+    qtext.innerHTML = `<span class="q-num">${block.num}</span><span>${block.text}</span>`;
+    card.appendChild(qtext);
+
+    if (block.audio) {
+      const audioRow = el("div", "audio-row");
+      const audioBtn = document.createElement("button");
+      audioBtn.type = "button";
+      audioBtn.className = "audio-btn";
+      audioBtn.textContent = "🔊 Nghe câu";
+      audioBtn.addEventListener("click", () => speakZH(block.audio));
+      audioRow.appendChild(audioBtn);
+      card.appendChild(audioRow);
+    }
+
+    if (block.type === "fill") {
+      const wrap = el("div", "fill-wrap");
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "fill-input";
+      inp.placeholder = "Nhập từ còn thiếu (chữ Hán hoặc pinyin)...";
+      inp.value = answers[keyFor(block)] || "";
+      inp.addEventListener("input", () => {
+        if (submitted) return;
+        answers[keyFor(block)] = inp.value;
+        updateProgress();
+      });
+      wrap.appendChild(inp);
+      card.appendChild(wrap);
+    }
+
+    if (block.type === "mcq") {
+      const opts = el("div", "opts");
+      block.options.forEach((optText, i) => {
+        const label = el("label", "opt");
+        label.innerHTML = `<input type="radio" name="${keyFor(block)}" value="${i}"><span class="letter">${LETTERS[i]}.</span> <span>${optText}</span>`;
+        label.addEventListener("click", () => {
+          if (submitted) return;
+          answers[keyFor(block)] = i;
+          updateProgress();
+          [...opts.children].forEach(c => c.classList.remove("selected"));
+          label.classList.add("selected");
+        });
+        opts.appendChild(label);
+      });
+      card.appendChild(opts);
+    }
+
+    if (block.type === "tf") {
+      const opts = el("div", "opts tf-opts");
+      [["Đúng", true], ["Sai", false]].forEach(([lbl, val]) => {
+        const label = el("label", "opt");
+        label.innerHTML = `<input type="radio" name="${keyFor(block)}" value="${val}"><span>${lbl}</span>`;
+        label.addEventListener("click", () => {
+          if (submitted) return;
+          answers[keyFor(block)] = val;
+          updateProgress();
+          [...opts.children].forEach(c => c.classList.remove("selected"));
+          label.classList.add("selected");
+        });
+        opts.appendChild(label);
+      });
+      card.appendChild(opts);
+    }
+
+    if (block.type === "match") {
+      answers[keyFor(block)] = answers[keyFor(block)] || new Array(block.left.length).fill(null);
+      block.left.forEach((leftWord, i) => {
+        const row = el("div", "match-row");
+        const sel = el("select", "pickr");
+        sel.appendChild(el("option", "", "— chọn nghĩa —")).value = "";
+        block.right.forEach((rightText, j) => {
+          const o = document.createElement("option");
+          o.value = j; o.textContent = `${String.fromCharCode(97+j)}. ${rightText}`;
+          sel.appendChild(o);
+        });
+        sel.addEventListener("change", () => {
+          if (submitted) return;
+          answers[keyFor(block)][i] = sel.value === "" ? null : parseInt(sel.value);
+          updateProgress();
+        });
+        row.appendChild(el("span", "han", `${i+1}. ${leftWord}`));
+        row.appendChild(sel);
+        sel.dataset.idx = i;
+        card.appendChild(row);
+      });
+    }
+
+    if (block.type === "translate") {
+      const wrap = el("div", "translate-wrap");
+      const ta = document.createElement("textarea");
+      ta.className = "translate-input";
+      ta.placeholder = "Nhập bản dịch của em vào đây...";
+      ta.value = answers[keyFor(block)] || "";
+      ta.addEventListener("input", () => {
+        if (submitted) return;
+        answers[keyFor(block)] = ta.value;
+      });
+      wrap.appendChild(ta);
+      card.appendChild(wrap);
+    }
+
+    container.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = totalGradable(currentLesson);
+  let answered = 0;
+  currentLesson.blocks.forEach(b => {
+    if (["passage", "section", "translate"].includes(b.type)) return;
+    const k = keyFor(b);
+    if (b.type === "match") {
+      if (answers[k] && answers[k].every(v => v !== null)) answered++;
+    } else if (b.type === "fill") {
+      if (answers[k] && answers[k].trim() !== "") answered++;
+    } else if (answers[k] !== undefined) answered++;
+  });
+  document.getElementById("progressLabel").textContent = `${answered} / ${total} câu đã trả lời`;
+  document.getElementById("progressFill").style.width = (answered / total * 100) + "%";
+}
+
+function grade() {
+  let correctCount = 0;
+  const total = totalGradable(currentLesson);
+
+  currentLesson.blocks.forEach(block => {
+    if (block.type === "passage" || block.type === "section") return;
+    const k = keyFor(block);
+    const card = document.querySelector(`.q-card[data-key="${k}"]`);
+
+    if (block.type === "mcq" || block.type === "tf") {
+      const chosen = answers[k];
+      const isRight = chosen !== undefined && chosen === block.correct;
+      if (isRight) correctCount++;
+      card.classList.add(isRight ? "right" : "wrong");
+      const status = el("span", "q-status " + (isRight ? "right" : "wrong"), isRight ? "Đúng" : "Sai");
+      card.querySelector(".q-text").appendChild(status);
+      const opts = card.querySelectorAll(".opt");
+      opts.forEach((optEl, i) => {
+        const val = block.type === "tf" ? (i === 0) : i;
+        if (val === block.correct) optEl.classList.add("mark-right");
+        else if (block.type === "tf" ? (chosen === val) : (chosen === i)) optEl.classList.add("mark-wrong");
+      });
+      if (!isRight) {
+        const correctLabel = block.type === "tf"
+          ? (block.correct ? "Đúng" : "Sai")
+          : `${LETTERS[block.correct]}. ${block.options[block.correct]}`;
+        card.appendChild(el("div", "hint-correct", "Đáp án đúng: " + correctLabel));
+        if (block.explain) {
+          card.appendChild(el("div", "explain-box", "<b>Giải thích:</b> " + block.explain));
+        }
+      }
+    }
+
+    if (block.type === "match") {
+      const chosen = answers[k] || [];
+      let rowRight = 0;
+      const selects = card.querySelectorAll("select.pickr");
+      selects.forEach((sel, i) => {
+        const isRight = chosen[i] === block.correct[i];
+        if (isRight) rowRight++;
+        sel.classList.add(isRight ? "mark-right" : "mark-wrong");
+        if (!isRight) {
+          sel.insertAdjacentHTML("afterend", ` <span class="hint-correct" style="margin:0 0 0 4px;">→ ${String.fromCharCode(97+block.correct[i])}. ${block.right[block.correct[i]]}</span>`);
+        }
+      });
+      const allRight = rowRight === block.left.length;
+      if (allRight) correctCount++;
+      card.classList.add(allRight ? "right" : "wrong");
+      const status = el("span", "q-status " + (allRight ? "right" : "wrong"), `${rowRight}/${block.left.length} đúng`);
+      card.querySelector(".q-text").appendChild(status);
+      if (!allRight && block.explain) {
+        card.appendChild(el("div", "explain-box", "<b>Giải thích:</b> " + block.explain));
+      }
+    }
+
+    if (block.type === "fill") {
+      const chosenRaw = (answers[k] || "").trim();
+      const norm = normalizeAnswer(chosenRaw);
+      const isRight = chosenRaw !== "" && block.accepted.some(a => normalizeAnswer(a) === norm);
+      if (isRight) correctCount++;
+      card.classList.add(isRight ? "right" : "wrong");
+      const status = el("span", "q-status " + (isRight ? "right" : "wrong"), isRight ? "Đúng" : "Sai");
+      card.querySelector(".q-text").appendChild(status);
+      const inputEl = card.querySelector(".fill-input");
+      if (inputEl) inputEl.disabled = true;
+      if (!isRight) {
+        card.appendChild(el("div", "hint-correct", "Đáp án đúng: " + block.accepted[0] + (block.accepted[1] ? " (" + block.accepted[1] + ")" : "")));
+        if (block.explain) {
+          card.appendChild(el("div", "explain-box", "<b>Giải thích:</b> " + block.explain));
+        }
+      }
+    }
+
+    if (block.type === "translate") {
+      card.classList.add("self-check");
+      const ta = card.querySelector(".translate-input");
+      if (ta) ta.disabled = true;
+      const status = el("span", "q-status", "Tự đối chiếu");
+      status.style.background = "var(--gold)";
+      status.style.color = "#fff";
+      card.querySelector(".q-text").appendChild(status);
+      card.appendChild(el("div", "hint-correct", "Đáp án tham khảo: " + block.answer));
+      if (block.explain) {
+        card.appendChild(el("div", "explain-box", "<b>Gợi ý:</b> " + block.explain));
+      }
+    }
+  });
+
+  const pct = Math.round(correctCount / total * 100);
+  const ring = document.getElementById("scoreRing");
+  ring.textContent = pct + "%";
+  document.getElementById("scoreTitle").textContent = `Kết quả: ${correctCount}/${total} câu đúng`;
+  let comment = "Cần ôn lại thêm nhé, cố lên!";
+  if (pct >= 90) comment = "Xuất sắc! Gần như trọn vẹn 🎉";
+  else if (pct >= 75) comment = "Khá tốt, chỉ còn vài chỗ cần xem lại.";
+  else if (pct >= 50) comment = "Ổn, nhưng nên ôn lại các câu sai bên dưới.";
+  document.getElementById("scoreSub").textContent = comment;
+  document.getElementById("scoreCard").classList.add("show");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetQuiz() {
+  answers = {};
+  submitted = false;
+  document.getElementById("scoreCard").classList.remove("show");
+  document.getElementById("submitBtn").disabled = false;
+  render();
+}
+
+function buildLessonPicker() {
+  const picker = document.getElementById("lessonPicker");
+  picker.innerHTML = "";
+  LESSONS.forEach((lesson, i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = lesson.title;
+    picker.appendChild(o);
+  });
+  picker.addEventListener("change", () => {
+    currentLesson = LESSONS[parseInt(picker.value)];
+    resetQuiz();
+  });
+}
+
+/* ============ ĂN MỪNG KHI NỘP BÀI: PHÁO HOA + TIẾNG VỖ TAY ============
+   Tự vẽ bằng canvas (không cần thư viện/ảnh ngoài) và tự tạo âm thanh vỗ
+   tay bằng Web Audio API (không cần file mp3 ngoài) — trang vẫn hoàn
+   toàn độc lập, không gọi mạng. Mặc định chạy mỗi khi nộp bài (mọi mức
+   điểm) để khích lệ học sinh; nếu muốn chỉ ăn mừng khi điểm cao, thêm
+   điều kiện `if (pct >= 75)` trước 2 lệnh gọi ở cuối hàm grade().
+*/
+function launchFireworks() {
+  const canvas = document.getElementById("celebrateCanvas");
+  const ctx2d = canvas.getContext("2d");
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener("resize", resize);
+
+  const colors = ["#f2c94c", "#e74c3c", "#1e8e5a", "#3498db", "#b8863b", "#e91e8c", "#7a1f2c"];
+  let particles = [];
+
+  function burst(x, y) {
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const count = 48;
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.2;
+      const speed = 2 + Math.random() * 3.5;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: 0.011 + Math.random() * 0.014,
+        color,
+        r: 2 + Math.random() * 2
+      });
+    }
+  }
+
+  const burstPoints = [];
+  const n = 6;
+  for (let i = 0; i < n; i++) {
+    burstPoints.push({
+      t: i * 340 + Math.random() * 150,
+      x: canvas.width * (0.12 + Math.random() * 0.76),
+      y: canvas.height * (0.15 + Math.random() * 0.35),
+      done: false
+    });
+  }
+
+  let start = null;
+  const totalMs = 3400;
+  function frame(ts) {
+    if (!start) start = ts;
+    const elapsed = ts - start;
+    burstPoints.forEach(bp => {
+      if (!bp.done && elapsed >= bp.t) { burst(bp.x, bp.y); bp.done = true; }
+    });
+    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.045;
+      p.life -= p.decay;
+    });
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      ctx2d.globalAlpha = Math.max(p.life, 0);
+      ctx2d.fillStyle = p.color;
+      ctx2d.beginPath();
+      ctx2d.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx2d.fill();
+    });
+    ctx2d.globalAlpha = 1;
+    if (elapsed < totalMs || particles.length) {
+      requestAnimationFrame(frame);
+    } else {
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function playApplause() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+    const duration = 2.4;
+    const clapCount = 45;
+    for (let i = 0; i < clapCount; i++) {
+      const t = now + Math.random() * duration;
+      const bufferSize = Math.floor(ctx.sampleRate * 0.06);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let j = 0; j < bufferSize; j++) {
+        data[j] = (Math.random() * 2 - 1) * Math.exp(-j / (bufferSize * 0.28));
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      const bp = ctx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 1500 + Math.random() * 3500;
+      bp.Q.value = 0.7;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.12 + Math.random() * 0.14;
+      src.connect(bp);
+      bp.connect(gain);
+      gain.connect(ctx.destination);
+      src.start(t);
+    }
+    setTimeout(() => { try { ctx.close(); } catch (e) {} }, (duration + 0.6) * 1000);
+  } catch (e) {
+    /* Web Audio không khả dụng (hiếm) — bỏ qua, không ảnh hưởng chấm điểm */
+  }
+}
+
+function celebrate() {
+  launchFireworks();
+  playApplause();
+}
+
+document.getElementById("submitBtn").addEventListener("click", () => {
+  if (submitted) return;
+  submitted = true;
+  document.getElementById("submitBtn").disabled = true;
+  grade();
+  celebrate();
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  resetQuiz();
+  const c = document.getElementById("celebrateCanvas");
+  const cx = c.getContext("2d");
+  cx.clearRect(0, 0, c.width, c.height);
+});
+
+buildLessonPicker();
+render();
+</script>
+</body>
+</html>
